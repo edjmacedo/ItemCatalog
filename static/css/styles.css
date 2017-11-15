@@ -282,6 +282,10 @@ h6 {
   padding-bottom: 20px;
 }
 
+.position-logout {
+  margin-top: 10px !important;
+}
+
 .navbar-brand {
   padding: 5px 10px;
 }
