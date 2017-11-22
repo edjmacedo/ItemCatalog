@@ -7,6 +7,7 @@ from database_setup import *
 from flask import session as login_session
 import random
 import string
+import datetime
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -14,6 +15,8 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from session_validation import session_auth_needed
+
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
@@ -42,7 +45,7 @@ def showLogin():
                     for x in xrange(32))
     login_session['state'] = state
     #return "The current session state is %s" % login_session['state']
-    return render_template('login.html', STATE=state);
+    return render_template('login.html', STATE=state)
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -205,6 +208,26 @@ def createUser(login_session):
     session.commit()
     user = session.query(User).filter_by(email = login_session['email']).one()
     return user.id
+
+# Add an item
+@app.route('/index/add', methods=['GET', 'POST'])
+@session_auth_needed
+def add_item():
+    categories = session.query(Category).all()
+    if request.method == 'POST':
+        newItem = Items(
+            name=request.form['name'],
+            description=request.form['description'],
+            category=session.query(Category).filter_by(name=request.form['category']).one(),
+            date=datetime.datetime.now(),
+            user_id=login_session['user_id'])
+        session.add(newItem)
+        session.commit()
+        flash('Item Successfully Added!')
+        return redirect(url_for('displayCatalog'))
+    else:
+        return render_template('add_item.html',
+                                categories=categories)
 
 # JSON
 @app.route('/index/JSON')

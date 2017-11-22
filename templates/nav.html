@@ -30,11 +30,19 @@
 
       {% if 'username' not in session %}
       {% else %}
-      <ul class="nav navbar-nav navbar-right">
-        <!--add_item ----- add_category -->
-        <li><a href="#">Add Item</a></li>
-        <li><a href="#">Add Category</a></li>
-      </ul>
+      <div class="nav navbar-nav navbar-right">
+        <a href="{{url_for('add_item')}}" class="navbar-text navbar-margin-btn add_item">
+          <button type="button" class="btn btn-default navbar-btn">
+          Add Item
+          </button>
+        </a>
+        <a href="{{url_for('add_item')}}" class="navbar-text navbar-margin-btn add_category">
+          <button type="button" class="btn btn-default navbar-btn">
+          Add Category
+          </button>
+        </a>
+
+      </div>
       {% endif %}
     </div><!-- end .navbar-collapse-->
   </div><!-- end of .container-fluid -->
