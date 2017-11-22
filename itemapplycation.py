@@ -229,6 +229,23 @@ def add_item():
         return render_template('add_item.html',
                                 categories=categories)
 
+# Add a category and save in catalogdb
+@app.route('/index/add_category', methods=['GET', 'POST'])
+@session_auth_needed
+def add_category():
+    if request.method == 'POST':
+        newCategory = Category(
+            name=request.form['name'],
+            user_id=login_session['user_id'])
+        print newCategory
+        session.add(newCategory)
+        session.commit()
+        flash('Success! Category has been added')
+        return redirect(url_for('displayCatalog'))
+    else:
+        flash('Failure! Category could not be added, try again')
+        return render_template('add_category.html')
+
 # JSON
 @app.route('/index/JSON')
 def itemsJSON():
