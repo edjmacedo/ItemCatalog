@@ -246,6 +246,52 @@ def add_category():
         flash('Failure! Category could not be added')
         return render_template('add_category.html')
 
+# Delete a category
+@app.route('/index/<path:category_name>/delete', methods=['GET', 'POST'])
+@session_auth_needed
+def delete_category(category_name):
+    categoryToDelete = session.query(Category).filter_by(name=category_name).one()
+    created_by = getUserInfo(categoryToDelete.user_id)
+    user = getUserInfo(login_session['user_id'])
+    if created_by.id != login_session['user_id']:
+        flash ("You cannot delete this Category")
+        return redirect(url_for('displayCatalog'))
+    if request.method =='POST':
+        session.delete(categoryToDelete)
+        session.commit()
+        flash('Successfully Deleted! '+categoryToDelete.name)
+        return redirect(url_for('displayCatalog'))
+    else:
+        return render_template('delete_category.html',
+                                category=categoryToDelete)
+
+# Edit esisting category
+@app.route('/index/<path:category_name>/edit', methods=['GET', 'POST'])
+@session_auth_needed
+def edit_category(category_name):
+    editedCategory = session.query(Category).filter_by(name=category_name).one()
+    category = session.query(Category).filter_by(name=category_name).one()
+    # Check if the logged in is authorized or user is the owner of item
+    created_by = getUserInfo(editedCategory.user_id)
+    user = getUserInfo(login_session['user_id'])
+    # If logged in user is not authorized
+    if created_by.id != login_session['user_id']:
+        flash ("You cannot edit this Category.")
+        return redirect(url_for('displayCatalog'))
+    # POST methods to handle form submission
+    if request.method == 'POST':
+        if request.form['name']:
+            editedCategory.name = request.form['name']
+        session.add(editedCategory)
+        session.commit()
+        flash('Success! Category Item Edited!')
+        return  redirect(url_for('displayCatalog'))
+    else:
+        flash('Failure! Category Item no edited, try again')
+        return render_template('edit_category.html',
+                                categories=editedCategory,
+                                category = category)
+
 # Edit an item
 @app.route('/index/<path:category_name>/<path:item_name>/edit', methods=['GET', 'POST'])
 @session_auth_needed
@@ -315,6 +361,23 @@ def itemsJSON():
         if items:
             category_dict[c]["Item"] = items
     return jsonify(Category=category_dict)
+
+@app.route('/index/items/JSON')
+def getItemsJSON():
+    items = session.query(Items).all()
+    return jsonify(items=[i.serialize for i in items])
+
+@app.route('/index/<path:category_name>/items/JSON')
+def categoryItemsJSON(category_name):
+    category = session.query(Category).filter_by(name=category_name).one()
+    items = session.query(Items).filter_by(category=category).all()
+    return jsonify(items=[i.serialize for i in items])
+
+@app.route('/index/<path:category_name>/<path:item_name>/JSON')
+def ItemJSON(category_name, item_name):
+    category = session.query(Category).filter_by(name=category_name).one()
+    item = session.query(Items).filter_by(name=item_name, category=category).one()
+    return jsonify(item=[item.serialize])
 
 @app.route('/catalog/categories/JSON')
 def categoriesJSON():

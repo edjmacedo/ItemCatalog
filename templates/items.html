@@ -4,35 +4,26 @@
 {% include "nav.html" %}
 {% include "flash.html" %}
 
-<!-- Page Content -->
 <section id="displayItem" class="section">
+  <div class="container">
+    <div class="row">
+      {% include "categories.html" %}
+        <div class="col-md-9">
+          <h6 class="pull-right">
+            <a href = "{{url_for('delete_category', category_name = category)}}">Delete Category</a>&nbsp;&nbsp;
+            <a href = "{{url_for('edit_category', category_name = category)}}">Edit Category</a>
 
-    <div class="container">
-
-        <div class="row">
-
-            {% include "categories.html" %}
-
-            <div class="col-md-9">
-                <h6 class="pull-right">
-                </h6>
-                <h6 class="padding-bottom-26">Items (<strong>{{count}}</strong>)</h6>
-                {% for i in items %}
-                <div class="thumbnail text-center">
-                    <div class="caption-full">
-                    </div>
-                    <a href = "{{url_for('displayItem', category_name = i.category.name, item_name = i.name)}}">
-                        <h4>{{ i.name }}</h4>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-
+          </h6>
+          <h6 class="padding-bottom-26">Items (<strong>{{count}}</strong>)</h6>
+            {% for i in items %}
+              <div class="thumbnail text-center">
+                <a href = "{{url_for('displayItem', category_name = i.category.name, item_name = i.name)}}">
+                  <h4>{{ i.name }}</h4>
+                </a>
+              </div>
+            {% endfor %}
         </div>
-        <!-- /.row -->
     </div>
-    <!-- /.container -->
+  </div>
 </section>
-<!-- /.section -->
-
 {% endblock %}

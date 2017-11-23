@@ -3,7 +3,6 @@
     <div class="col-md-3">
         <h6 class="lead">Categories</h6>
         <div class="list-group">
-            <!-- { { url_for('displayCategory', category_name = c.name,) } } -->
             {% for c in categories %}
             <a href="{{url_for('displayCategory', category_name = c.name,)}}" class="list-group-item">{{ c.name }}</a>
             {% endfor %}
