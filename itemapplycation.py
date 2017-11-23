@@ -243,8 +243,66 @@ def add_category():
         flash('Success! Category has been added')
         return redirect(url_for('displayCatalog'))
     else:
-        flash('Failure! Category could not be added, try again')
+        flash('Failure! Category could not be added')
         return render_template('add_category.html')
+
+# Edit an item
+@app.route('/index/<path:category_name>/<path:item_name>/edit', methods=['GET', 'POST'])
+@session_auth_needed
+def edit_item(category_name, item_name):
+    editedItem = session.query(Items).filter_by(name=item_name).one()
+    categories = session.query(Category).all()
+    # See if the logged in user is the owner of item
+    created_by = getUserInfo(editedItem.user_id)
+    user = getUserInfo(login_session['user_id'])
+    # If logged in user != item owner redirect them
+    if created_by.id != login_session['user_id']:
+        flash ("You are not %s. editing is forbiden" % created_by.name)
+        return redirect(url_for('displayCatalog'))
+    # POST methods handling form
+    if request.method == 'POST':
+        if request.form['name']:
+            editedItem.name = request.form['name']
+        if request.form['description']:
+            editedItem.description = request.form['description']
+        if request.form['category']:
+            category = session.query(Category).filter_by(name=request.form['category']).one()
+            editedItem.category = category
+        time = datetime.datetime.now()
+        editedItem.date = time
+        session.add(editedItem)
+        session.commit()
+        flash('Category Item Successfully Edited!')
+        return  redirect(url_for('displayCategory',
+                                category_name=editedItem.category.name))
+    else:
+        return render_template('edit_item.html',
+                                item=editedItem,
+                                categories=categories)
+
+# Delete an item
+@app.route('/index/<path:category_name>/<path:item_name>/delete', methods=['GET', 'POST'])
+@session_auth_needed
+def delete_item(category_name, item_name):
+    itemToDelete = session.query(Items).filter_by(name=item_name).one()
+    category = session.query(Category).filter_by(name=category_name).one()
+    categories = session.query(Category).all()
+    # See if the logged in user is the owner of item
+    created_by = getUserInfo(itemToDelete.user_id)
+    user = getUserInfo(login_session['user_id'])
+    # If logged in user != item owner redirect them
+    if created_by.id != login_session['user_id']:
+        flash ("Delete is forbiden for you. This item belongs to %s" % created_by.name)
+        return redirect(url_for('displayCatalog'))
+    if request.method =='POST':
+        session.delete(itemToDelete)
+        session.commit()
+        flash('Item Successfully Deleted! '+itemToDelete.name)
+        return redirect(url_for('displayCategory',
+                                category_name=category.name))
+    else:
+        return render_template('delete_item.html',
+                                item=itemToDelete)
 
 # JSON
 @app.route('/index/JSON')
