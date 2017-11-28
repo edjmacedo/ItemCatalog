@@ -6,33 +6,24 @@
 {% include "nav.html" %}
 {% include "flash.html" %}
 
-<!-- Page Content -->
 <section id="displayItem" class="section">
-
-    <div class="container">
-
-        <div class="row">
-
-            {% include "categories.html" %}
-
-            <div class="col-md-9">
-                <h6 class="padding-bottom-26">Items (<strong>{{count}}</strong>)</h6>
-                {% for i in items %}
-                <div class="thumbnail text-center">
-                    <div class="caption-full">
-                    </div>
-                    <a href = "{{url_for('displayItem', category_name = i.category.name, item_name = i.name)}}">
-                        <h4>{{ i.name }}</h4>
-                    </a>
-                </div>
-                {% endfor %}
+  <div class="container">
+    <div class="row">
+    {% include "categories.html" %}
+      <div class="col-md-9">
+        <h6 class="padding-bottom-26">Items (<strong>{{count}}</strong>)</h6>
+        {% for i in items %}
+          <div class="thumbnail text-center">
+            <div class="caption-full">
             </div>
-
-        </div>
-        <!-- /.row -->
+            <a href = "{{url_for('displayItem', category_name = i.category.name, item_name = i.name)}}">
+              <h4>{{ i.name }}</h4>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
     </div>
-    <!-- /.container -->
+  </div>
 </section>
-<!-- /.section -->
 
 {% endblock %}
